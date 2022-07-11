@@ -1,0 +1,39 @@
+cabal-version: 2.4
+name:          polysemy-panic-example
+version:       0.1.0.0
+
+common common
+  ghc-options:
+    -fplugin=Polysemy.Plugin -Wall -O2 -flate-specialise
+    -fspecialise-aggressively
+
+  default-extensions:
+    DataKinds
+    FlexibleContexts
+    GADTs
+    LambdaCase
+    PolyKinds
+    RankNTypes
+    ScopedTypeVariables
+    TypeApplications
+    TypeFamilies
+    TypeOperators
+
+executable polysemy-panic-example
+  import:           common
+
+  -- cabal-fmt: expand src -Main
+  other-modules:
+    EffectStack
+    OneModule
+    OtherModule
+
+  build-depends:
+    , base             ^>=4.14.3.0
+    , polysemy         >=1.7
+    , polysemy-plugin  >=0.4.3.0
+
+  hs-source-dirs:   src
+  default-language: Haskell2010
+  main-is:          Main.hs
+  default-language: Haskell2010
