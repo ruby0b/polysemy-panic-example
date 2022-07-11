@@ -1,28 +1,44 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
-import OneModule
-import OtherModule
-import Polysemy
+import Calamity (Token (BotToken), defaultIntents, runBotIO)
+import Calamity.Cache.InMemory (runCacheInMemory)
+import Calamity.Commands (addCommands, useConstantPrefix)
+import Calamity.Commands.Context (useFullContext)
+import Calamity.Metrics.Noop (runMetricsNoop)
+import Data.Functor (void)
+import qualified Di
+import qualified DiPolysemy as DiP
+import PanicModule (MyError, panicCommand)
+import qualified Polysemy as P
 import Polysemy.Error
 
-printStrErrors :: (Member (Embed IO) r) => Sem (Error String : r) a2 -> Sem r ()
+printStrErrors :: (P.Member (P.Embed IO) r) => P.Sem (Error String : r) a2 -> P.Sem r ()
 printStrErrors err =
   runError err >>= \case
-    Left msg -> embed $ print msg
+    Left msg -> P.embed $ putStrLn msg
     Right _ -> return ()
 
-printIntErrors :: (Member (Embed IO) r) => Sem (Error Int : r) a2 -> Sem r ()
-printIntErrors err =
+printFancyStrErrors :: (P.Member (P.Embed IO) r) => P.Sem (Error MyError : r) a2 -> P.Sem r ()
+printFancyStrErrors err =
   runError err >>= \case
-    Left msg -> embed $ print msg
+    Left msg -> P.embed $ putStrLn $ "Fancy Error: " ++ show msg
     Right _ -> return ()
 
 main :: IO ()
-main =
-  runFinal
-    . embedToFinal
+main = do
+  let token = "MY_FAKE_TOKEN"
+  Di.new $ \di -> void
+    . P.runFinal
+    . P.embedToFinal
+    . DiP.runDiToIO di
     . printStrErrors
-    . printIntErrors
-    $ do
-      polyMain
-      polyMain2
+    . printFancyStrErrors
+    . runCacheInMemory
+    . runMetricsNoop
+    . useConstantPrefix "="
+    . useFullContext
+    . runBotIO (BotToken token) defaultIntents
+    $ addCommands $ do
+      panicCommand

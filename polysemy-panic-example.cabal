@@ -2,11 +2,29 @@ cabal-version: 2.4
 name:          polysemy-panic-example
 version:       0.1.0.0
 
-common common
+executable polysemy-panic-example
+  main-is:            Main.hs
+  hs-source-dirs:     src
+
+  -- cabal-fmt: expand src -Main
+  other-modules:      PanicModule
+  build-depends:
+    , base                ^>=4.14.3.0
+    , calamity            >=0.5.0.0
+    , calamity-commands   >=0.4.0.0
+    , di                  >=1.3
+    , di-polysemy         >=0.2.0.0
+    , optics              >=0.4.2
+    , polysemy            >=1.7
+    , polysemy-plugin     >=0.4.3.0
+    , string-interpolate  >=0.3.1.2
+
+  default-language:   Haskell2010
   ghc-options:
     -fplugin=Polysemy.Plugin -Wall -O2 -flate-specialise
     -fspecialise-aggressively
 
+  -- only the ones required by polysemy; other extensions are enabled manually
   default-extensions:
     DataKinds
     FlexibleContexts
@@ -18,22 +36,3 @@ common common
     TypeApplications
     TypeFamilies
     TypeOperators
-
-executable polysemy-panic-example
-  import:           common
-
-  -- cabal-fmt: expand src -Main
-  other-modules:
-    EffectStack
-    OneModule
-    OtherModule
-
-  build-depends:
-    , base             ^>=4.14.3.0
-    , polysemy         >=1.7
-    , polysemy-plugin  >=0.4.3.0
-
-  hs-source-dirs:   src
-  default-language: Haskell2010
-  main-is:          Main.hs
-  default-language: Haskell2010
